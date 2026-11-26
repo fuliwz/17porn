@@ -131,22 +131,12 @@ onMounted(loadRemotePage)
 
 <template>
   <main class="shell">
-    <header class="toolbar">
-      <a class="brand" href="/" aria-label="首页">17<span>PORN</span></a>
-      <div class="source-state">
-        <span class="state-dot" :class="{ active: !loading && !error }"></span>
-        <span>{{ loading ? '正在连接' : error ? '连接异常' : '已连接' }}</span>
-      </div>
-    </header>
-
-    <section v-if="loading" class="status-panel" aria-live="polite">
-      <div class="spinner"></div>
-      <h1>正在加载页面</h1>
-      <p>正在通过远程 POST 获取网页内容并解码。</p>
-      <small>{{ currentAddress }}</small>
+    <section v-if="loading" class="loading-screen" aria-live="polite">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">网页正在加载中<span class="loading-dots">....</span></div>
     </section>
 
-    <section v-else-if="error" class="status-panel error-panel" role="alert">
+    <section v-else-if="error" class="error-screen" role="alert">
       <div class="error-mark">!</div>
       <h1>页面加载失败</h1>
       <p>{{ error }}</p>
@@ -154,16 +144,13 @@ onMounted(loadRemotePage)
       <button type="button" class="retry-button" @click="retry">重新加载</button>
     </section>
 
-    <section v-else class="remote-content">
-      <iframe
-        class="remote-frame"
-        title="远程网页内容"
-        sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-        referrerpolicy="strict-origin-when-cross-origin"
-        :srcdoc="pageHtml"
-      ></iframe>
-    </section>
-
-    <footer class="footer">远程页面代理展示</footer>
+    <iframe
+      v-else
+      class="remote-frame"
+      title="远程网页内容"
+      sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      referrerpolicy="strict-origin-when-cross-origin"
+      :srcdoc="pageHtml"
+    ></iframe>
   </main>
 </template>
