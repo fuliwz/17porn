@@ -91,7 +91,7 @@ async function loadRemotePage() {
     }
 
     const encoded = extractEncodedHtml(responseText, contentType)
-    const decoded = await decodeBase64Payload(encoded)
+    let decoded = await decodeBase64Payload(encoded)
 
     if (!decoded.trim()) {
       throw new Error('解码后的网页内容为空。')
