@@ -72,8 +72,7 @@ async function loadRemotePage() {
       redirect: 'follow',
       cache: 'no-store',
       headers: {
-        'Accept': 'text/plain, application/json, */*',
-        'X-Requested-With': 'XMLHttpRequest'
+        'Accept': 'text/plain, application/json, */*'
       },
       body: ''
     })
@@ -98,6 +97,18 @@ async function loadRemotePage() {
       throw new Error('解码后的网页内容为空。')
     }
 
+    // Make root-relative and relative assets resolve against the remote site, not the Pages host.
+    const remoteBase = UPSTREAM_ORIGIN + '/'
+    const baseTag = '<base href="' + remoteBase.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">'
+    if (/<head\\b[^>]*>/i.test(decoded)) {
+      if (/<base\\b[^>]*>/i.test(decoded)) {
+        decoded = decoded.replace(/<base\\b[^>]*>/i, baseTag)
+      } else {
+        decoded = decoded.replace(/<head\\b[^>]*>/i, match => match + baseTag)
+      }
+    } else {
+      decoded = baseTag + decoded
+    }
     pageHtml.value = decoded
   } catch (e) {
     console.error('Remote POST load failed:', e)
