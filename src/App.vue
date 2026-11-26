@@ -1,14 +1,11 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const UPSTREAM_ORIGIN = 'https://xvv.7e5zbdgbh4rebo1.sbs'
 
 const loading = ref(true)
 const error = ref('')
-const pageHtml = ref('')
 const responseStatus = ref(0)
-
-const currentAddress = computed(() => window.location.pathname + window.location.search + window.location.hash)
 
 function base64ToBytes(value) {
   const normalized = value.replace(/\s+/g, '')
@@ -60,7 +57,6 @@ function extractEncodedHtml(text, contentType) {
 async function loadRemotePage() {
   loading.value = true
   error.value = ''
-  pageHtml.value = ''
 
   const sourceUrl = new URL(window.location.href)
   const targetUrl = new URL(sourceUrl.pathname + sourceUrl.search, UPSTREAM_ORIGIN)
@@ -98,7 +94,7 @@ async function loadRemotePage() {
     }
 
     // Make root-relative and relative assets resolve against the remote site, not the Pages host.
-    const remoteBase = UPSTREAM_ORIGIN + '/'
+    const remoteBase = targetUrl.origin + targetUrl.pathname
     const baseTag = '<base href="' + remoteBase.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">'
     if (/<head\b[^>]*>/i.test(decoded)) {
       if (/<base\b[^>]*>/i.test(decoded)) {
@@ -109,7 +105,10 @@ async function loadRemotePage() {
     } else {
       decoded = baseTag + decoded
     }
-    pageHtml.value = decoded
+    // 将解码后的完整 HTML 写入当前页面，不使用 iframe。
+    document.open()
+    document.write(decoded)
+    document.close()
   } catch (e) {
     console.error('Remote POST load failed:', e)
     if (e instanceof TypeError && /fetch|network|failed/i.test(e.message)) {
@@ -143,14 +142,5 @@ onMounted(loadRemotePage)
       <small v-if="responseStatus">HTTP 状态：{{ responseStatus }}</small>
       <button type="button" class="retry-button" @click="retry">重新加载</button>
     </section>
-
-    <iframe
-      v-else
-      class="remote-frame"
-      title="远程网页内容"
-      sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-      referrerpolicy="strict-origin-when-cross-origin"
-      :srcdoc="pageHtml"
-    ></iframe>
   </main>
 </template>
