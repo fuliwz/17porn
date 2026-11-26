@@ -11,7 +11,7 @@ const responseStatus = ref(0)
 const currentAddress = computed(() => window.location.pathname + window.location.search + window.location.hash)
 
 function base64ToBytes(value) {
-  const normalized = value.replace(/\\s+/g, '')
+  const normalized = value.replace(/\s+/g, '')
   const binary = atob(normalized)
   const bytes = new Uint8Array(binary.length)
   for (let i = 0; i < binary.length; i += 1) {
@@ -100,11 +100,11 @@ async function loadRemotePage() {
     // Make root-relative and relative assets resolve against the remote site, not the Pages host.
     const remoteBase = UPSTREAM_ORIGIN + '/'
     const baseTag = '<base href="' + remoteBase.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">'
-    if (/<head\\b[^>]*>/i.test(decoded)) {
-      if (/<base\\b[^>]*>/i.test(decoded)) {
-        decoded = decoded.replace(/<base\\b[^>]*>/i, baseTag)
+    if (/<head\b[^>]*>/i.test(decoded)) {
+      if (/<base\b[^>]*>/i.test(decoded)) {
+        decoded = decoded.replace(/<base\b[^>]*>/i, baseTag)
       } else {
-        decoded = decoded.replace(/<head\\b[^>]*>/i, match => match + baseTag)
+        decoded = decoded.replace(/<head\b[^>]*>/i, match => match + baseTag)
       }
     } else {
       decoded = baseTag + decoded
