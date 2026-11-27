@@ -6,7 +6,7 @@ const API_SECRET = 'c229dd8891019b086ad8a4ce7fdaca64'
 const utf8Decoder = new TextDecoder('utf-8')
 
 function decodeBase64(value) {
-  if (typeof value !== 'string' || !value) {
+  const binary = atob(value.replace(/\s+/g, ''))
     throw new Error('API 加密响应缺少 Base64 数据。')
   }
   const binary = atob(value.replace(/\\s+/g, ''))
